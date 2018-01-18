@@ -1,0 +1,16 @@
+plugins {
+    id 'org.springframework.boot' version '1.5.9.RELEASE'
+    id "com.palantir.docker" version "0.17.2"
+}
+
+group='jp.co.biglobe'
+version='1.0'
+
+// 依存ライブラリの設定
+apply from: file("${rootProject.rootDir}/etc/gradle/library.gradle")
+
+// Dockerタスクの設定
+apply from: file("${rootProject.rootDir}/etc/gradle/docker.gradle")
+
+// Gradleラッパータスクの設定
+apply from: file("${rootProject.rootDir}/etc/gradle/wrapper.gradle")
