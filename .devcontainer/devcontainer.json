@@ -1,0 +1,24 @@
+{
+	"name": "BIGLOBE Java DDD",
+	"dockerFile": "Dockerfile",
+	"settings": {
+		"terminal.integrated.shell.linux": "/bin/bash",
+		"remote.extensionKind": {
+			"ms-azuretools.vscode-docker": "workspace"
+		}
+	},
+	// Uncomment the next line if you want to publish any ports.
+	// "appPort": [],
+	// Uncomment the next line to run commands after the container is created.
+	// "postCreateCommand": "ansible --version",
+	// Add the IDs of extensions you want installed when the container is created in the array below.
+	"extensions": [
+		"vscjava.vscode-java-pack",
+		"pivotal.vscode-boot-dev-pack",
+		"naco-siren.gradle-language",
+		"redhat.vscode-yaml",
+		"ms-azuretools.vscode-docker",
+		"gabrielbb.vscode-lombok",
+		"jebbs.plantuml"
+	]
+}

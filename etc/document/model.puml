@@ -1,0 +1,129 @@
+@startuml 割り勘アプリ
+
+package service {
+
+    class WarikanService {
+        ' 幹事が、システム上に、開催した 飲み会 の 名前, 開催日時 などを設定する
+        + Party registerParty(Name, EventDate)
+        ' 幹事が、システム上の、開催した 飲み会 の 参加者 を追加する
+        + void joinParty(Party, Member)
+        ' 幹事が、システム上の、開催した 飲み会 の 参加者 を削除する
+        + void cancelMember(Party, Member)
+        ' 幹事が、システム上の、開催した 飲み会 の 支払区分 (多め,普通,少なめ)ごとに 支払割合 を設定する
+        + void addMember(Party, PaymentType, PaymentRate)
+        ' 幹事が、システム上の、開催した 飲み会 の 請求金額 を設定する
+        ' 幹事が、システムを利用して 飲み会 の 参加者ごとの支払金額 を計算する
+        + void createInvoiceList(Party, AmountBilled)
+    }
+}
+
+package domain {
+    package party {
+
+        interface PartyRepository {
+            + Party register(Name, EventDate)
+            + Party search(PartyId)
+        }
+
+        WarikanService --> PartyRepository
+
+        class Party
+
+        class PartyId
+        class Name
+        class EventDate
+
+        Party "1" --> "1" PartyId
+        Party --> "1" Name
+        Party --> "1" EventDate
+    }
+
+    package member {
+
+        interface MemberRepository {
+            + void join(Party, Member)
+            + void cancel(Party, Member)
+            + MemberList getMemberList(Party);
+        }
+
+        WarikanService --> MemberRepository
+
+        class MemberList {
+            + InvoiceList createInvoiceList(AmountBilled, PaymentRateTable)
+            - TotalPaymentRate getTotalPaymentRate(PaymentRateTable)
+        }
+
+        class Member {
+            PaymentRate getPaymentRate(PaymentRateTable)
+            PaymentAmount calcPaymentAmount(BasePaymentAmount, PaymentRateTable)
+            Invoice createInvoice(BasePaymentAmount, PaymentRateTable)
+        }
+
+        MemberList *-- "1..*" Member
+    }
+
+    package payment {
+
+        interface PaymentRateRepository {
+            + void register(Party, PaymentType, PaymentRate)
+            + PaymentRateTable getPaymentRateTable(Party)
+        }
+
+        WarikanService --> PaymentRateRepository
+
+        enum PaymentType {
+            MANY
+            NORMAL
+            LITTLE
+
+            + PaymentRate getDefaultRate()
+        }
+
+        '連想配列として参照してるときの書き方忘れた。。。
+        class PaymentRateTable {
+            - Map<PaymentType, PaymentRate> table
+
+            + PaymentRate getPaymentRate(PaymentType)
+        }
+
+        class PaymentRate {
+            + final Double value
+
+            + PaymentAmount calcPaymentAmount(BasePaymentAmount)
+        }
+
+        class TotalPaymentRate {
+            + final Double value
+        }
+
+        Member      --> "1" PaymentType
+        PaymentType --> "1" PaymentRate
+        PaymentRateTable "PaymentType" #-> "1" PaymentRate
+
+        class AmountBilled {
+            + final Integer value
+
+            + BasePaymentAmount calcBasePaymentAmount(TotalPaymentRate)
+        }
+
+        class BasePaymentAmount {
+            + final Integer value
+        }
+
+        class PaymentAmount {
+            + final Integer value
+        }
+    }
+
+    package invoice {
+
+        class InvoiceList
+        class Invoice
+
+        InvoiceList *--> "1..*" Invoice
+
+        Invoice --> "1" Member
+        Invoice --> "1" PaymentAmount
+    }
+}
+@endum

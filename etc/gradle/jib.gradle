@@ -1,0 +1,41 @@
+// Jibタスクの設定
+jib {
+  // ベースイメージを変更したい場合はここを変更する
+  // from {
+  //   image = "openjdk:8-jdk-alpine"
+  // }
+
+  // 生成するDockerイメージの設定
+  to {
+    image = "${awsAccountId}.dkr.ecr.${awsRegion}.amazonaws.com/${rootProject.name}"
+//    credHelper = 'ecr-login'
+    tags = [
+      rootProject.version,
+      'latest'
+    ]
+  }
+
+  container {
+    jvmFlags = [
+      '-Xms64M',
+      '-Xmx64M',
+      '-Xss1M'
+    ]
+    ports = [
+      springBootPort
+    ]
+    // labels = [
+    // ]
+
+    // 環境変数を使って、spring.properties を上書き。
+    // Docker化を進めるのであれば、パラメータ定義は、application.yml ではなく、環境変数に
+    // 寄せてDockerコンテナ側に記載するようにし、アプリと環境をソースからも分離したほうが良い
+    environment = [
+      "SPRING_PROFILES_ACTIVE": "default",
+      "SPRING_APPLICATION_NAME": rootProject.name,
+      "SERVER_PORT": springBootPort
+    ]
+
+    format = 'OCI'
+  }
+}
